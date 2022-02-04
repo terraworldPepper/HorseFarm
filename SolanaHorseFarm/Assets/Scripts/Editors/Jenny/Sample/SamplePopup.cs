@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class Util : MonoBehaviour
+public class SamplePopup : UIBase
 {
     #region static variables
     #endregion
 
     #region private variables
+    [SerializeField] Text _text = null;
     #endregion
 
     #region public variables
@@ -17,18 +19,15 @@ public class Util : MonoBehaviour
     #endregion
 
     #region static function
-    public static void SetActive(GameObject go, bool isActive)
-    {
-        if (go == null)
-            return;
-
-        go.SetActive(isActive);
-    }
     #endregion
 
     #region private function
     #endregion
 
     #region public function
+    public void SetInfo()
+    {
+        Util.SetLabel(_text, "This is a sample Popup!");
+    }
     #endregion
 }

@@ -15,7 +15,10 @@ public class Properties : Singleton<Properties>
     [Header("2. Page Open Animation")]
     [SerializeField] AnimationCurve _pageAnimCurve = null;
     [SerializeField] float _pageAnimDuration = 0.5f;
-    [SerializeField] float _pageAnimStartDelay = 0f;
+
+    [Header("3. Popup Open Animation")]
+    [SerializeField] AnimationCurve _popupAnimCurve = null;
+    [SerializeField] float _popupAnimDuration = 0.5f;
     #endregion
 
     #region public variables
@@ -48,11 +51,18 @@ public class Properties : Singleton<Properties>
             return _pageAnimDuration;
         }
     }
-    public float pageAnimStartDelay
+    public AnimationCurve popupAnimCurve
     {
         get
         {
-            return _pageAnimStartDelay;
+            return _popupAnimCurve;
+        }
+    }
+    public float popupAnimDuration
+    {
+        get
+        {
+            return _popupAnimDuration;
         }
     }
     #endregion

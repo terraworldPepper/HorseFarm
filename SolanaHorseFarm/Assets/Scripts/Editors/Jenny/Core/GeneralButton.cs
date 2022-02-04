@@ -60,8 +60,7 @@ public class GeneralButton : MonoBehaviour
     {
         if (_button)
         {
-            transform.
-            iTween.ScaleTo(gameObject, new Vector3(_buttonScale, _buttonScale, _originSize.z), _animationTime);
+            transform.DOScale(new Vector3(_buttonScale, _buttonScale, _originSize.z), _animationTime);
         }
     }
 
@@ -69,7 +68,7 @@ public class GeneralButton : MonoBehaviour
     {
         if (_button)
         {
-            iTween.ScaleTo(gameObject, new Vector3(_originSize.x, _originSize.y, _originSize.z), _animationTime);
+            transform.DOScale(new Vector3(_originSize.x, _originSize.y, _originSize.z), _animationTime);
         }
     }
     #endregion
