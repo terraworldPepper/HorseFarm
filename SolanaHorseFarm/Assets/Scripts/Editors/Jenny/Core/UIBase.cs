@@ -24,6 +24,8 @@ public class UIBase : MonoBehaviour
 
         if (_backButton)
             _backButton.onClick.AddListener(OnBackButtonClick);
+
+        SetBackgroundClickBlocker();
     }
     #endregion
 
@@ -31,6 +33,21 @@ public class UIBase : MonoBehaviour
     #endregion
 
     #region private function
+    void SetBackgroundClickBlocker()
+    {
+        GameObject blocker = Resources.Load("Prefabs/Core/ClickBlocker") as GameObject;
+        if (blocker == null)
+            return;
+
+        GameObject child = GameObject.Instantiate(blocker, transform);
+        if (child)
+        {
+            child.transform.SetAsFirstSibling();
+            RectTransform rect = child.GetComponent<RectTransform>();
+            if (rect)
+                rect.sizeDelta = new Vector2(Screen.width, Screen.height);
+        }
+    }
     void OnExitButtonClick()
     {
         UIManager.Instance.CloseUI();
@@ -49,7 +66,7 @@ public class UIBase : MonoBehaviour
             return;
 
         tr.gameObject.layer = LayerMask.NameToLayer(layerName);
-        foreach (Transform child in transform)
+        foreach (Transform child in tr)
             SetLayerRecursive(child, layerName);
     }
     #endregion

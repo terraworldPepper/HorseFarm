@@ -28,11 +28,35 @@ public class Test : MonoBehaviour
 
     public void OpenSamplePage()
     {
-        UIManager.Instance.OpenUI("Prefab/SamplePage");
+        SamplePage cs = UIManager.Instance.OpenUI<SamplePage>("Prefabs/SamplePage");
+        if (cs)
+            cs.SetInfo();
     }
 
     public void OpenSamplePopup()
     {
-        UIManager.Instance.OpenUI("Prefab/SamplePopup");
+        SamplePopup cs = UIManager.Instance.OpenUI<SamplePopup>("Prefabs/SamplePopup", true);
+        if (cs)
+            cs.SetInfo();
+    }
+
+    public void OpenToast()
+    {
+        UIManager.Instance.OpenToast(ToastType.Toast, "This is a first toast Test!");
+    }
+
+    public void OpenToast2()
+    {
+        UIManager.Instance.OpenToast(ToastType.Toast2, "This is a second toast Test!");
+    }
+
+    public void OpenToast3()
+    {
+        UIManager.Instance.OpenToast(ToastType.Toast3, "This is a third toast Test!");
+    }
+
+    public void OpenToast4()
+    {
+        UIManager.Instance.OpenToast(ToastType.Toast4, "This is a forth toast Test!");
     }
 }

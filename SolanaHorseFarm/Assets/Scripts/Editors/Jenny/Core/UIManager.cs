@@ -10,10 +10,37 @@ public class UIManager : Singleton<UIManager>
 
     #region private variables
     Stack<GameObject> _stackUI = new Stack<GameObject>();
-    Transform _parent = null;
+    private Transform _ui_root = null;
+    private Transform _ui_toast = null;
     #endregion
 
     #region public variables
+    public Transform ui_root
+    {
+        get
+        {
+            if (_ui_root == null)
+            {
+                GameObject go = GameObject.Find("ui_root");
+                if (go)
+                    _ui_root = go.transform;
+            }
+            return _ui_root;
+        }
+    }
+    public Transform ui_toast
+    {
+        get
+        {
+            if (_ui_toast == null)
+            {
+                GameObject go = GameObject.Find("ui_toast");
+                if (go)
+                    _ui_toast = go.transform;
+            }
+            return _ui_toast;
+        }
+    }
     #endregion
 
     #region unity function
@@ -21,13 +48,6 @@ public class UIManager : Singleton<UIManager>
 
     private void Awake()
     {
-        if (_parent == null)
-        {
-            GameObject go = GameObject.Find("ui_root");
-            if (go)
-                _parent = go.transform;
-        }
-
         _stackUI.Clear();
     }
     #endregion
@@ -36,6 +56,26 @@ public class UIManager : Singleton<UIManager>
     #endregion
 
     #region private function
+    private ObjectPoolItems GetObjectPoolItemType(ToastType type)
+    {
+        ObjectPoolItems item = ObjectPoolItems.Toast;
+        switch (type)
+        {
+            case ToastType.Toast:
+                item = ObjectPoolItems.Toast;
+                break;
+            case ToastType.Toast2:
+                item = ObjectPoolItems.Toast2;
+                break;
+            case ToastType.Toast3:
+                item = ObjectPoolItems.Toast3;
+                break;
+            case ToastType.Toast4:
+                item = ObjectPoolItems.Toast4;
+                break;
+        }
+        return item;
+    }
     #endregion
 
     #region public function
@@ -45,7 +85,10 @@ public class UIManager : Singleton<UIManager>
             return;
 
         GameObject prefab = Resources.Load(path) as GameObject;
-        GameObject newObj = GameObject.Instantiate(prefab, _parent);
+        if (prefab == null)
+            return;
+
+        GameObject newObj = GameObject.Instantiate(prefab, ui_root);
         if (newObj)
         {
             Util.SetActive(newObj, true);
@@ -66,8 +109,11 @@ public class UIManager : Singleton<UIManager>
             return default(T);
 
         GameObject prefab = Resources.Load(path) as GameObject;
+        if (prefab == null)
+            return default(T);
+
         T script = default(T);
-        GameObject newObj = GameObject.Instantiate(prefab, _parent);
+        GameObject newObj = GameObject.Instantiate(prefab, ui_root);
         if (newObj)
         {
             Util.SetActive(newObj, true);
@@ -115,6 +161,35 @@ public class UIManager : Singleton<UIManager>
         {
             _stackUI.Push(reverseStack.Pop());
         }
+    }
+
+    public void OpenToast(ToastType toastType, string msg)
+    {
+        if (string.IsNullOrEmpty(msg))
+            return;
+
+        if (ObjectPool.Instance == null)
+            return;
+        
+        ObjectPoolItems itemType = GetObjectPoolItemType(toastType);
+        GameObject obj = ObjectPool.Instance.GetObject(itemType);
+        if (obj)
+        {
+            obj.transform.SetParent(ui_root);
+            obj.transform.localPosition = Vector3.zero;
+            ToastObj cs = obj.GetComponent<ToastObj>();
+            if (cs)
+                cs.SetTextMessage(toastType, msg);
+        }
+    }
+
+    public void CloseToast(ToastType toastType, GameObject obj)
+    {
+        if (obj == null)
+            return;
+
+        ObjectPoolItems itemType = GetObjectPoolItemType(toastType);
+        ObjectPool.Instance.ReturnObject(itemType, obj);
     }
     #endregion
 }

@@ -12,13 +12,18 @@ public class GeneralButton : MonoBehaviour
     #endregion
 
     #region private variables
-    [Header("Scale Variables")]
-    [SerializeField] float _buttonScale = 0f;
-    [SerializeField] float _animationTime = 0f;
+    [SerializeField] bool _individualProperty = false;
+
+    [Header("Scale Animation Info")]
+    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _originSize = Vector3.one;
+    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _tweenSize = Vector3.one;
+    [SerializeField][ConditionalEnable("_individualProperty")] float _tweenTime = 0.1f;
+
+    [Header("Animation Target")]
+    [SerializeField] GameObject _targetObj = null;
 
     Button _button = null;
     EventTrigger _trigger = null;
-    Vector3 _originSize = new Vector3(1f, 1f, 1f);
     #endregion
 
     #region public variables
@@ -27,8 +32,7 @@ public class GeneralButton : MonoBehaviour
     #region unity function
     void Awake()
     {
-        _buttonScale = Properties.Instance.buttonSize;
-        _animationTime = Properties.Instance.buttonAnimationTime;
+        SetProperties();
 
         _button = GetComponent<Button>();
         if (_button != null)
@@ -46,8 +50,6 @@ public class GeneralButton : MonoBehaviour
                 entry.callback.AddListener((data) => { PointerUp(); });
                 _trigger.triggers.Add(entry);
             }
-
-            _originSize = new Vector3(_button.transform.localScale.x, _button.transform.localScale.y, _button.transform.localScale.z);
         }
     }
     #endregion
@@ -56,19 +58,30 @@ public class GeneralButton : MonoBehaviour
     #endregion
 
     #region private function
+    void SetProperties()
+    {
+        if (!_individualProperty)
+        {
+            _originSize = UIProperties.Instance.buttonOriginSize;
+            _tweenSize = UIProperties.Instance.buttonAnimSize;
+            _tweenTime = UIProperties.Instance.buttonAnimTime;
+        }
+    }
     void PointerDown()
     {
-        if (_button)
+        if (_targetObj)
         {
-            transform.DOScale(new Vector3(_buttonScale, _buttonScale, _originSize.z), _animationTime);
+            SetProperties();
+
+            _targetObj.transform.DOScale(_tweenSize, _tweenTime);
         }
     }
 
     void PointerUp()
     {
-        if (_button)
+        if (_targetObj)
         {
-            transform.DOScale(new Vector3(_originSize.x, _originSize.y, _originSize.z), _animationTime);
+            _targetObj.transform.DOScale(_originSize, _tweenTime);
         }
     }
     #endregion

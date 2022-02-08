@@ -9,15 +9,16 @@ public class GeneralPopup : MonoBehaviour
     #endregion
 
     #region private variables
+    [SerializeField] bool _individualProperty = false;
+
     [Header("Scale Animation Info")]
-    [SerializeField] AnimationCurve _curve = null;
-    [SerializeField] float _duration = 0f;
+    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _startSize = Vector3.zero;
+    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _maxSize = Vector3.one;
+    [SerializeField][ConditionalEnable("_individualProperty")] AnimationCurve _animCurve = null;
+    [SerializeField][ConditionalEnable("_individualProperty")] float _animTime = 0.1f;
 
-    [Header("Scale Animation Target")]
+    [Header("Animation Target")]
     [SerializeField] GameObject _targetObj = null;
-
-    Vector3 _startScale = new Vector3(0f, 0f, 0f);
-    Vector3 _endScale = new Vector3(1f, 1f, 1f);
     #endregion
 
     #region public variables
@@ -26,13 +27,18 @@ public class GeneralPopup : MonoBehaviour
     #region unity function
     private void Awake()
     {
-        _curve = Properties.Instance.popupAnimCurve;
-        _duration = Properties.Instance.popupAnimDuration;
+        if (!_individualProperty)
+        {
+            _startSize = UIProperties.Instance.popupStartSize;
+            _maxSize = UIProperties.Instance.popupMaxSize;
+            _animCurve = UIProperties.Instance.popupAnimCurve;
+            _animTime = UIProperties.Instance.popupAnimTime;
+        }
 
         if (_targetObj)
         {
-            _targetObj.transform.localScale = _startScale;
-            _targetObj.transform.DOScale(_endScale, _duration).SetEase(_curve);
+            _targetObj.transform.localScale = _startSize;
+            _targetObj.transform.DOScale(_maxSize, _animTime).SetEase(_animCurve);
         }
     }
     #endregion
