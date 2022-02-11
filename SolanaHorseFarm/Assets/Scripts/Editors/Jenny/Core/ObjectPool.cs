@@ -42,19 +42,20 @@ public class ObjectPool : Singleton<ObjectPool>
             Debug.LogError("Please match with prefabs and enums");
             return;
         }
+    }
 
-        for (int i = 0; i < _prefabs.Length; i++)
+    public void EmptyObjectPool()
+    {
+        foreach (KeyValuePair<ObjectPoolItems, Queue<GameObject>> pair in _dicObjectPool)
         {
-            if (!_dicObjectPool.ContainsKey((ObjectPoolItems)i))
+            if (pair.Value != null && pair.Value.Count > 0)
             {
-                Queue<GameObject> childQueue = new Queue<GameObject>();
-                childQueue.Clear();
-                _dicObjectPool.Add((ObjectPoolItems)i, childQueue);
+                while (pair.Value.Count > 0)
+                {
+                    GameObject obj = pair.Value.Dequeue();
+                    Destroy(obj);
+                }
             }
-
-            GameObject clone = Instantiate(_prefabs[i], transform);
-            Util.SetActive(clone, false);
-            _dicObjectPool[(ObjectPoolItems)i].Enqueue(clone);
         }
     }
 

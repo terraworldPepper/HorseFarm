@@ -13,7 +13,7 @@ public class EditorProperty : EditorWindow
 
     #region private variables
     string filePath;
-    EditorUIProperty properties = null;
+    UIProperties.UIProperty properties = null;
     #endregion
 
     #region public variables
@@ -36,7 +36,7 @@ public class EditorProperty : EditorWindow
 
         EditorGUIUtility.wideMode = true;
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(12);
         GUILayout.Label("1. 버튼 세팅", EditorStyles.boldLabel);
         EditorGUI.indentLevel += 2;
         properties.buttonOriginSize = EditorGUILayout.Vector3Field("기본 크기", properties.buttonOriginSize);
@@ -44,37 +44,32 @@ public class EditorProperty : EditorWindow
         properties.buttonAnimTime = EditorGUILayout.FloatField("애니메이션 속도", properties.buttonAnimTime);
         EditorGUI.indentLevel -= 2;
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(12);
         GUILayout.Label("2. 전체 화면 UI 페이지 세팅", EditorStyles.boldLabel);
         EditorGUI.indentLevel += 2;
-        properties.pageStartSize = EditorGUILayout.Vector3Field("시작 크기", properties.pageStartSize);
-        properties.pageMaxSize = EditorGUILayout.Vector3Field("완료 크기", properties.pageMaxSize);
+        // 시작 크기와 목표 크기의 갭 만큼을 수행??
         properties.pageAnimCurve = EditorGUILayout.CurveField("애니메이션 그래프", properties.pageAnimCurve);
         properties.pageAnimTime = EditorGUILayout.FloatField("애니메이션 속도", properties.pageAnimTime);
         EditorGUI.indentLevel -= 2;
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(12);
         GUILayout.Label("3. 팝업 윈도우 세팅", EditorStyles.boldLabel);
         EditorGUI.indentLevel += 2;
-        properties.popupStartSize = EditorGUILayout.Vector3Field("시작 크기", properties.popupStartSize);
-        properties.popupMaxSize = EditorGUILayout.Vector3Field("완료 크기", properties.popupMaxSize);
         properties.popupAnimCurve = EditorGUILayout.CurveField("애니메이션 그래프", properties.popupAnimCurve);
         properties.popupAnimTime = EditorGUILayout.FloatField("애니메이션 속도", properties.popupAnimTime);
         EditorGUI.indentLevel -= 2;
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space(12);
         GUILayout.Label("4. 토스트 메시지 세팅", EditorStyles.boldLabel);
         EditorGUI.indentLevel += 1;
         EditorGUILayout.LabelField("▷ 크기 변화 ");
         EditorGUI.indentLevel += 1;
-        properties.toastStartSize = EditorGUILayout.Vector3Field("시작 크기", properties.toastStartSize);
-        properties.toastEndSize = EditorGUILayout.Vector3Field("완료 크기", properties.toastEndSize);
         properties.toastAnimStartCurveSize = EditorGUILayout.CurveField("시작 애니메이션 그래프", properties.toastAnimStartCurveSize);
         properties.toastAnimEndCurveSize = EditorGUILayout.CurveField("종료 애니메이션 그래프", properties.toastAnimEndCurveSize);
         properties.toastAnimTimeSize = EditorGUILayout.FloatField("애니메이션 속도", properties.toastAnimTimeSize);
         EditorGUI.indentLevel -= 1;
 
-        EditorGUILayout.Space(5);
+        EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("▷ 위치 변화 ");
         EditorGUI.indentLevel += 1;
         properties.toastStartPos = EditorGUILayout.Vector3Field("시작 위치", properties.toastStartPos);
@@ -84,14 +79,26 @@ public class EditorProperty : EditorWindow
         properties.toastAnimTimePos = EditorGUILayout.FloatField("애니메이션 속도", properties.toastAnimTimePos);
         EditorGUI.indentLevel -= 1;
 
-        EditorGUILayout.Space(5);
+        EditorGUILayout.Space(6);
         EditorGUILayout.LabelField("▷ 유지 시간 ");
         EditorGUI.indentLevel += 1;
         properties.toastStayTime = EditorGUILayout.FloatField("토스트 유지 시간", properties.toastStayTime);
+        EditorGUI.indentLevel -= 1;
+
+        EditorGUILayout.Space(6);
+        EditorGUILayout.LabelField("▷ 토스트 오브젝트 풀 초기화 ");
+        EditorGUI.indentLevel += 1;
+        Rect lastRect = GUILayoutUtility.GetLastRect();
+        if (GUI.Button(new Rect(lastRect.x + 30, lastRect.y + EditorGUIUtility.singleLineHeight, 200, 20), "토스트 오브젝트 풀 비우기"))
+        {
+            EmptyObjectPool();
+        }
+        EditorGUILayout.Space(18);
+        EditorGUILayout.HelpBox("런타임 중에 토스트 프리팹의 Individual Property 설정을 바꾸려면 오브젝트 풀을 비워줘야 합니다. ", MessageType.Info);
         EditorGUI.indentLevel -= 2;
 
-        EditorGUILayout.Space();
-        Rect lastRect = GUILayoutUtility.GetLastRect();
+        EditorGUILayout.Space(6);
+        lastRect = GUILayoutUtility.GetLastRect();
         if (GUI.Button(new Rect(lastRect.x, lastRect.y + EditorGUIUtility.singleLineHeight, position.width, 20), "Save"))
         {
             SaveData();
@@ -127,100 +134,52 @@ public class EditorProperty : EditorWindow
             {
                 string json = r.ReadToEnd();
                 if (!string.IsNullOrEmpty(json))
-                    properties = EditorUIProperty.CreateInstanceFromJson(json);
+                    properties = UIProperties.UIProperty.CreateInstanceFromJson(json);
                 else
-                    properties = new EditorUIProperty();
+                    properties = new UIProperties.UIProperty();
             }
         }
         else
         {
-            properties = new EditorUIProperty();
+            properties = new UIProperties.UIProperty();
         }
 
         SetUIProperties();
+    }
+    private void EmptyObjectPool()
+    {
+        ObjectPool.Instance.EmptyObjectPool();
     }
 
     private void SetUIProperties()
     {
         if (UIProperties.Instance != null)
         {
-            UIProperties.Instance.buttonOriginSize = properties.buttonOriginSize;
-            UIProperties.Instance.buttonAnimSize = properties.buttonAnimSize;
-            UIProperties.Instance.buttonAnimTime = properties.buttonAnimTime;
+            UIProperties.Instance.Properties.buttonOriginSize = properties.buttonOriginSize;
+            UIProperties.Instance.Properties.buttonAnimSize = properties.buttonAnimSize;
+            UIProperties.Instance.Properties.buttonAnimTime = properties.buttonAnimTime;
 
-            UIProperties.Instance.pageStartSize = properties.pageStartSize;
-            UIProperties.Instance.pageMaxSize = properties.pageMaxSize;
-            UIProperties.Instance.pageAnimCurve = properties.pageAnimCurve;
-            UIProperties.Instance.pageAnimTime = properties.pageAnimTime;
+            UIProperties.Instance.Properties.pageAnimCurve = properties.pageAnimCurve;
+            UIProperties.Instance.Properties.pageAnimTime = properties.pageAnimTime;
 
-            UIProperties.Instance.popupStartSize = properties.popupStartSize;
-            UIProperties.Instance.popupMaxSize = properties.popupMaxSize;
-            UIProperties.Instance.popupAnimCurve = properties.popupAnimCurve;
-            UIProperties.Instance.popupAnimTime = properties.popupAnimTime;
+            UIProperties.Instance.Properties.popupAnimCurve = properties.popupAnimCurve;
+            UIProperties.Instance.Properties.popupAnimTime = properties.popupAnimTime;
 
-            UIProperties.Instance.toastStartSize = properties.toastStartSize;
-            UIProperties.Instance.toastEndSize = properties.toastEndSize;
-            UIProperties.Instance.toastAnimStartCurveSize = properties.toastAnimStartCurveSize;
-            UIProperties.Instance.toastAnimEndCurveSize = properties.toastAnimEndCurveSize;
-            UIProperties.Instance.toastAnimTimeSize = properties.toastAnimTimeSize;
+            UIProperties.Instance.Properties.toastAnimStartCurveSize = properties.toastAnimStartCurveSize;
+            UIProperties.Instance.Properties.toastAnimEndCurveSize = properties.toastAnimEndCurveSize;
+            UIProperties.Instance.Properties.toastAnimTimeSize = properties.toastAnimTimeSize;
 
-            UIProperties.Instance.toastStartPos = properties.toastStartPos;
-            UIProperties.Instance.toastEndPos = properties.toastEndPos;
-            UIProperties.Instance.toastAnimStartCurvePos = properties.toastAnimStartCurvePos;
-            UIProperties.Instance.toastAnimEndCurvePos = properties.toastAnimEndCurvePos;
-            UIProperties.Instance.toastAnimTimePos = properties.toastAnimTimePos;
+            UIProperties.Instance.Properties.toastStartPos = properties.toastStartPos;
+            UIProperties.Instance.Properties.toastEndPos = properties.toastEndPos;
+            UIProperties.Instance.Properties.toastAnimStartCurvePos = properties.toastAnimStartCurvePos;
+            UIProperties.Instance.Properties.toastAnimEndCurvePos = properties.toastAnimEndCurvePos;
+            UIProperties.Instance.Properties.toastAnimTimePos = properties.toastAnimTimePos;
 
-            UIProperties.Instance.toastStayTime = properties.toastStayTime;
+            UIProperties.Instance.Properties.toastStayTime = properties.toastStayTime;
         }
     }
     #endregion
 
     #region public function
     #endregion
-
-    private class EditorUIProperty
-    {
-        public Vector3 buttonOriginSize = Vector3.one;
-        public Vector3 buttonAnimSize = Vector3.one;
-        public float buttonAnimTime = 0.1f;
-
-        public Vector3 pageStartSize = Vector3.zero;
-        public Vector3 pageMaxSize = Vector3.one;
-        public AnimationCurve pageAnimCurve = null;
-        public float pageAnimTime = 0.1f;
-
-        public Vector3 popupStartSize = Vector3.zero;
-        public Vector3 popupMaxSize = Vector3.one;
-        public AnimationCurve popupAnimCurve = null;
-        public float popupAnimTime = 0.1f;
-
-        public Vector3 toastStartSize = Vector3.zero;
-        public Vector3 toastEndSize = Vector3.one;
-        public AnimationCurve toastAnimStartCurveSize = null;
-        public AnimationCurve toastAnimEndCurveSize = null;
-        public float toastAnimTimeSize = 0.1f;
-
-        public Vector3 toastStartPos = Vector3.zero;
-        public Vector3 toastEndPos = Vector3.zero;
-        public AnimationCurve toastAnimStartCurvePos = null;
-        public AnimationCurve toastAnimEndCurvePos = null;
-        public float toastAnimTimePos = 0.1f;
-
-        public float toastStayTime = 3f;
-
-        public string DataToJsonString()
-        {
-            return JsonUtility.ToJson(this);
-        }
-
-        public void JsonStringToData(string json)
-        {
-            JsonUtility.FromJsonOverwrite(json, this);
-        }
-
-        public static EditorUIProperty CreateInstanceFromJson(string json)
-        {
-            return JsonUtility.FromJson<EditorUIProperty>(json);
-        }
-    }
 }

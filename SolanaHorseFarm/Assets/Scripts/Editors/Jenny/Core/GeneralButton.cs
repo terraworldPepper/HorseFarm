@@ -23,7 +23,6 @@ public class GeneralButton : MonoBehaviour
     [SerializeField] GameObject _targetObj = null;
 
     Button _button = null;
-    EventTrigger _trigger = null;
     #endregion
 
     #region public variables
@@ -37,18 +36,18 @@ public class GeneralButton : MonoBehaviour
         _button = GetComponent<Button>();
         if (_button != null)
         {
-            _trigger = gameObject.AddComponent<EventTrigger>();
-            if (_trigger)
+            EventTrigger trigger = gameObject.AddComponent<EventTrigger>();
+            if (trigger)
             {
                 EventTrigger.Entry entry = new EventTrigger.Entry();
                 entry.eventID = EventTriggerType.PointerDown;
                 entry.callback.AddListener((data) => { PointerDown(); });
-                _trigger.triggers.Add(entry);
+                trigger.triggers.Add(entry);
 
                 entry = new EventTrigger.Entry();
                 entry.eventID = EventTriggerType.PointerUp;
                 entry.callback.AddListener((data) => { PointerUp(); });
-                _trigger.triggers.Add(entry);
+                trigger.triggers.Add(entry);
             }
         }
     }
@@ -62,9 +61,9 @@ public class GeneralButton : MonoBehaviour
     {
         if (!_individualProperty)
         {
-            _originSize = UIProperties.Instance.buttonOriginSize;
-            _tweenSize = UIProperties.Instance.buttonAnimSize;
-            _tweenTime = UIProperties.Instance.buttonAnimTime;
+            _originSize = UIProperties.Instance.Properties.buttonOriginSize;
+            _tweenSize = UIProperties.Instance.Properties.buttonAnimSize;
+            _tweenTime = UIProperties.Instance.Properties.buttonAnimTime;
         }
     }
     void PointerDown()

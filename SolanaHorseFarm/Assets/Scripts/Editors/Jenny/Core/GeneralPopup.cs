@@ -12,13 +12,14 @@ public class GeneralPopup : MonoBehaviour
     [SerializeField] bool _individualProperty = false;
 
     [Header("Scale Animation Info")]
-    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _startSize = Vector3.zero;
-    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _maxSize = Vector3.one;
-    [SerializeField][ConditionalEnable("_individualProperty")] AnimationCurve _animCurve = null;
+    [SerializeField][ConditionalEnable("_individualProperty")] AnimationCurve _animCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
     [SerializeField][ConditionalEnable("_individualProperty")] float _animTime = 0.1f;
 
     [Header("Animation Target")]
     [SerializeField] GameObject _targetObj = null;
+
+    Vector3 _startSize = Vector3.zero;
+    Vector3 _maxSize = Vector3.one;
     #endregion
 
     #region public variables
@@ -29,15 +30,13 @@ public class GeneralPopup : MonoBehaviour
     {
         if (!_individualProperty)
         {
-            _startSize = UIProperties.Instance.popupStartSize;
-            _maxSize = UIProperties.Instance.popupMaxSize;
-            _animCurve = UIProperties.Instance.popupAnimCurve;
-            _animTime = UIProperties.Instance.popupAnimTime;
+            _animCurve = UIProperties.Instance.Properties.popupAnimCurve;
+            _animTime = UIProperties.Instance.Properties.popupAnimTime;
         }
 
         if (_targetObj)
         {
-            _targetObj.transform.localScale = _startSize;
+            _targetObj.transform.localScale = Vector3.zero;
             _targetObj.transform.DOScale(_maxSize, _animTime).SetEase(_animCurve);
         }
     }

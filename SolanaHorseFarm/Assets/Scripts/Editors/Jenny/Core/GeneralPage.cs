@@ -12,13 +12,14 @@ public class GeneralPage : MonoBehaviour
     [SerializeField] bool _individualProperty = false;
 
     [Header("Scale Animation Info")]
-    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _startSize = Vector3.zero;
-    [SerializeField][ConditionalEnable("_individualProperty")] Vector3 _maxSize = Vector3.one;
-    [SerializeField][ConditionalEnable("_individualProperty")] AnimationCurve _animCurve = null;
+    [SerializeField][ConditionalEnable("_individualProperty")] AnimationCurve _animCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(1, 1));
     [SerializeField][ConditionalEnable("_individualProperty")] float _animTime = 0.1f;
 
     [Header("Animation Target")]
     [SerializeField] GameObject _targetObj = null;
+
+    Vector3 _startSize = Vector3.zero;
+    Vector3 _maxSize = Vector3.one;
     #endregion
 
     #region public variables
@@ -29,10 +30,8 @@ public class GeneralPage : MonoBehaviour
     {
         if (!_individualProperty)
         {
-            _startSize = UIProperties.Instance.pageStartSize;
-            _maxSize = UIProperties.Instance.pageMaxSize;
-            _animCurve = UIProperties.Instance.pageAnimCurve;
-            _animTime = UIProperties.Instance.pageAnimTime;
+            _animCurve = UIProperties.Instance.Properties.pageAnimCurve;
+            _animTime = UIProperties.Instance.Properties.pageAnimTime;
         }
 
         if (_targetObj)
